@@ -29,6 +29,9 @@
     <dependency org="com.sun.jersey" name="jersey-client" rev="1.5" transitive="false">
       <artifact name="jersey-client" type="jar"/>
     </dependency>
+    
+    <dependency org='org.codehaus.enunciate' name='enunciate-jersey-rt' rev='1.21' transitive='false' />
+    
     <!-- END JAX-WS (Service extension) dependencies -->
     
     <dependency org="org.springframework" name="spring" rev="2.5.6" transitive="false" />

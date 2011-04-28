@@ -1,17 +1,14 @@
 package org.pentaho.plugin.j2ee;
 
 import java.io.File;
-import java.util.Enumeration;
-import java.util.Hashtable;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.enunciate.modules.jersey.EnunciateJerseyServletContainer;
 import org.pentaho.platform.api.engine.IPluginManager;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.services.solution.BaseContentGenerator;
@@ -27,37 +24,19 @@ public class ServletAdapterContentGenerator extends BaseContentGenerator {
   private static final Log logger = LogFactory.getLog(ServletAdapterContentGenerator.class);
   private IPluginManager pm = PentahoSystem.get(IPluginManager.class);
   private static ConfigurableApplicationContext appContext;
-  private static JAXRSPluginServlet servlet;
+  private static EnunciateJerseyServletContainer servlet;
   
+
   public ServletAdapterContentGenerator() throws ServletException {
     if(appContext == null) {
       appContext = getSpringBeanFactory();
-      servlet = (JAXRSPluginServlet)appContext.getBean("jaxrsPluginServlet");
-      ServletConfig servletConfig = new ServletConfig() {
-
-        @Override
-        public String getInitParameter(String name) {
-          return null;
-        }
-
-        @Override
-        public Enumeration getInitParameterNames() {
-          return new Hashtable<String, String>().elements();
-        }
-
-        @Override
-        public ServletContext getServletContext() {
-          return null;
-        }
-
-        @Override
-        public String getServletName() {
-          return "UglyAdapterServlet";
-        }
-        
-      };
-      servlet.init(servletConfig);
+      servlet = (EnunciateJerseyServletContainer) appContext.getBean("enunciatePluginServlet");
+      servlet.init();
     }
+  }
+  
+  public static ConfigurableApplicationContext getAppContext() {
+	return appContext;
   }
 
   @SuppressWarnings("nls")
@@ -74,7 +53,7 @@ public class ServletAdapterContentGenerator extends BaseContentGenerator {
   }
   
   private ConfigurableApplicationContext getSpringBeanFactory() {
-    final PluginClassLoader loader = (PluginClassLoader)pm.getClassLoader("jaxrs");
+    final PluginClassLoader loader = (PluginClassLoader)pm.getClassLoader("j2ee");
     File f = new File(loader.getPluginDir(), "plugin.spring.xml"); //$NON-NLS-1$
     if (f.exists()) {
       logger.debug("Found plugin spring file @ " + f.getAbsolutePath()); //$NON-NLS-1$
